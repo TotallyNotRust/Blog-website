@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+    <div>
+        <style>
+            .center {
+                text-align: center;
+            }
+            .header {
+                text-align: center;
+                font-size: 50px;
+                padding: 20px;
+                width: 400px;
+                margin: 0 auto;
+                background-color: antiquewhite;
+                outline: 2px;
+                outline-style: outset;
+            }
+            body {
+                background-color: beige;
+            }
+            .post{
+                background-color: antiquewhite;
+                width: 400px;
+                margin: 0 auto;
+                outline: 2px;
+                outline-style: outset;
+            }
+
+        </style>
+    </div>
+    <div class = "center">
+        <div>
+            <h1 class="header">Gustav's blog</h1>
+        </div>
+        <div>
+            {% for post in posts %}
+            <div class="post">
+                <div><h2>{{ post.title }}</h2></div>
+                <div>{{ post.content }}</div>
+            </div>
+            {%endfor%}
+        </div>
+    </div>
+</html>
