@@ -25,7 +25,14 @@
                 outline: 2px;
                 outline-style: outset;
             }
-
+            .alert {
+                padding: 20px;
+                background-color: lightblue; /* Red */
+                color: white;
+                margin-bottom: 15px;
+                width: 25%;
+                text-align: center;
+            }
         </style>
     </div>
     <div class = "center">
@@ -40,5 +47,10 @@
             </div>
             {%endfor%}
         </div>
+    {% for message in get_flashed_messages() %}
+        <script>
+            alert("{{message}}");
+        </script>
+    {% endfor %}
     </div>
 </html>
