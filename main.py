@@ -1,10 +1,11 @@
-from flask import Flask, render_template, flash, redirect, url_for, request, make_response
+from flask import Flask, render_template, flash, redirect, url_for, request, make_response, send_file
 import sqlite3 as sql
-import sys, secrets
+import sys, secrets, logging, hashlib, os
 from makeNewPost import MakePost
 from datetime import datetime
 from login import Login
-
+print(logging.DEBUG)
+logging.basicConfig(filename='log.log', encoding='utf-8', level=logging.DEBUG)
 
 app = Flask(__name__)
 
@@ -17,15 +18,17 @@ else:
 
 password = "admin"
 
+UPLOAD_FOLDER = os.path.join('static')
+
 print(key)
 print(app.config['SECRET_KEY'])
  
 def getPosts():
+
     conn = sql.connect("posts.db")
     c = conn.cursor()
     c.execute("SELECT * FROM POSTS")
-    posts = [{"title": t, "content": c} for t, c in c.fetchall()]
-
+    posts = [{"title": t, "content": c, "images": ["\static\\"+i for i in i.split(",") if i!='']} for t, c, i in c.fetchall()]
     return posts
 
 def submitPost(title, body):
@@ -53,7 +56,7 @@ def mainPage():
 
 @app.route("/makePost", methods=['GET', 'POST'])
 def makePost():
-    if request.cookies.get("key") == key:
+    if request.cookies.get("key") == hashlib.md5((key+request.remote_addr).encode()).hexdigest():
         form = MakePost()
         if form.validate_on_submit():
             flash('Post made.', 'success')
@@ -71,7 +74,8 @@ def login():
     if form.validate_on_submit():
         if form.password.data == password:
             resp = redirect(url_for('mainPage'))
-            resp.set_cookie('key', key)
+            resp.set_cookie('key', hashlib.md5((key+request.remote_addr).encode()).hexdigest())
+            logging.warning(f'{datetime.now()}:{request.remote_addr} logged in')
             return resp
         else:
             flash('Incorrect password')
@@ -84,4 +88,8 @@ def page_not_found(e):
     return '<h1>Page not found</h1>'
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    while True:
+        try:
+            app.run(debug=True)
+        except:
+            pass

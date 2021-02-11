@@ -33,6 +33,10 @@
                 width: 25%;
                 text-align: center;
             }
+            img{
+                width:25%;
+                max-width:200px;
+            }
         </style>
     </div>
     <div class = "center">
@@ -44,6 +48,11 @@
             <div class="post">
                 <div><h2>{{ post.title }}</h2></div>
                 <div>{{ post.content }}</div>
+                <div>
+                {% for image in post.images %}
+                    <img src="{{image}}">
+                {%endfor%}
+                </div>
             </div>
             {%endfor%}
         </div>
