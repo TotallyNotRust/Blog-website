@@ -42,7 +42,7 @@
         </style>
     </div>
     <div class = "center">
-        <form method="POST" action="">
+        <form method="POST" action="" enctype="multipart/form-data">
             {{ form.hidden_tag() }}
             <fieldset>
                 <legend class = "header mb-4">Make post</legend>
@@ -59,6 +59,12 @@
                             {{ form.body.label(class="lg-text") }}
                         </div>
                         {{ form.body(class="form-control lg-element") }}
+                    </div>
+                    <div>
+                        <div>
+                            {{ form.pictures.label(class="lg-text") }}
+                        </div>
+                        {{ form.pictures(class="lg-text") }}
                     </div>
                 </div>
             </fieldset>

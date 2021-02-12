@@ -4,6 +4,7 @@ import sys, secrets, logging, hashlib, os
 from makeNewPost import MakePost
 from datetime import datetime
 from login import Login
+
 print(logging.DEBUG)
 logging.basicConfig(filename='log.log', encoding='utf-8', level=logging.DEBUG)
 
@@ -19,6 +20,8 @@ else:
 password = "admin"
 
 UPLOAD_FOLDER = os.path.join('static')
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 print(key)
 print(app.config['SECRET_KEY'])
@@ -31,10 +34,10 @@ def getPosts():
     posts = [{"title": t, "content": c, "images": ["\static\\"+i for i in i.split(",") if i!='']} for t, c, i in c.fetchall()]
     return posts
 
-def submitPost(title, body):
+def submitPost(title, body, picture):
     conn = sql.connect("posts.db")
     c = conn.cursor()
-    c.execute("INSERT INTO POSTS VALUES (?, ?)", (title, body))
+    c.execute("INSERT INTO POSTS VALUES (?, ?, ?)", (title, body, picture))
     conn.commit()
 
 @app.route("/removeKey")
@@ -54,13 +57,26 @@ def mainPage():
     resp.set_cookie('seenCookies', "1")
     return resp
 
+def save_image(image):
+    name = hashlib.md5(datetime.now().strftime("%Y%d%m%M%H%S").encode()).hexdigest()
+    _, ext = os.path.splitext(image.filename)
+    path = os.path.join(app.root_path, 'static\\', name+ext)
+    image.save(path)
+    return name+ext
+
 @app.route("/makePost", methods=['GET', 'POST'])
 def makePost():
+    print(request.cookies.get("key"))
+    print(hashlib.md5((key+request.remote_addr).encode()).hexdigest())
     if request.cookies.get("key") == hashlib.md5((key+request.remote_addr).encode()).hexdigest():
         form = MakePost()
         if form.validate_on_submit():
+            if form.pictures.data:
+                picture = save_image(form.pictures.data)
+            else:
+                picture = ""
             flash('Post made.', 'success')
-            submitPost(form.title.data, form.body.data)
+            submitPost(form.title.data, form.body.data, picture)
             print(f'{datetime.now()}: Post made by {request.remote_addr}, with the title: {form.title.data}') 
             return redirect(url_for('mainPage'))
         else:
