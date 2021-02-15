@@ -47,11 +47,16 @@
             {% for post in posts %}
             <div class="post">
                 <div><h2>{{ post.title }}</h2></div>
-                <div>{{ post.content }}</div>
-                <div>
-                {% for image in post.images %}
-                    <img src="{{image}}">
+                {% set pictures = post.images %}
+                {% for i in post.content.split("\r\n") %}
+                {% if i == "__img__"%}
+                    <img src="{{pictures[0]}}">
+                    {% set pictures = pictures[1:]%}
+                {% else %}
+                    <div>{{i}}</div>
+                {%endif%}
                 {%endfor%}
+                <div>
                 </div>
             </div>
             {%endfor%}
