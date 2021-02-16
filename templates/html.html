@@ -1,7 +1,23 @@
 <!DOCTYPE html>
 <html>
     <div>
+        <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
         <style>
+            .topper {
+                position: fixed;
+                left: 0;
+                bottom: 0;
+                width: 100%;
+                height: 50px;
+                background-color: #d9b382;
+                color: white;
+                text-align: center;
+            }
+            .topper-text {
+                position: absolute;
+                top: 25%;
+            }
+
             .center {
                 text-align: center;
             }
@@ -24,6 +40,7 @@
                 margin: 0 auto;
                 outline: 2px;
                 outline-style: outset;
+                text-align: left;
             }
             .alert {
                 padding: 20px;
@@ -37,9 +54,33 @@
                 width:25%;
                 max-width:200px;
             }
+            .lg-text {
+                font-size: 20px;
+                font-weight: 1000;
+            }
+            .code {
+                background-color: grey;
+                outline: 2px;
+                outline-style: outset;
+            }
         </style>
     </div>
     <div class = "center">
+        <div class="topper">
+            {% if isAdmin %}
+
+            <div>
+                <a class = "topper-text" href="/makePost">Make post</a>
+            </div>
+
+            {% else %}
+            
+            <div>
+                <a class = "topper-text" href="/login">Make post</a>
+            </div>
+
+            {% endif %}
+        </div>
         <div>
             <h1 class="header">Gustav's blog</h1>
         </div>
@@ -47,17 +88,28 @@
             {% for post in posts %}
             <div class="post">
                 <div><h2>{{ post.title }}</h2></div>
+                {% set doingCode = False%}
                 {% set pictures = post.images %}
                 {% for i in post.content.split("\r\n") %}
+
+                {% if not i[:2] == "``" and doingCode %}
+                {% set doingCode = False %}
+                </pre>
+                {% endif %}
+
                 {% if i == "__img__"%}
                     <img src="{{pictures[0]}}">
                     {% set pictures = pictures[1:]%}
+                {% elif i[:2] == "^^" %}
+                    <div class="lg-text">{{i[2:]}}</div>
+                {% elif i[:2] == "``" %}
+                {% set doingCode = True %}
+                <pre class="prettyprint">
+                       {{i[2:]}}
                 {% else %}
-                    <div>{{i}}</div>
+                    <div>{{i}}</div>                               
                 {%endif%}
                 {%endfor%}
-                <div>
-                </div>
             </div>
             {%endfor%}
         </div>

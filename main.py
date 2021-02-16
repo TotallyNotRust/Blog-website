@@ -4,6 +4,7 @@ import sys, secrets, logging, hashlib, os
 from makeNewPost import MakePost
 from datetime import datetime
 from login import Login
+import markdown
 
 print(logging.DEBUG)
 logging.basicConfig(filename='log.log', encoding='utf-8', level=logging.DEBUG)
@@ -48,12 +49,14 @@ def removeKey():
 
 @app.route("/")
 def mainPage():
+
     [print(f'{i}: {request.cookies.get(i)}') for i in request.cookies]
     if not request.cookies.get('seenCookies') == "1":
         flash("This site uses cookies to keep track of users, none of this data is stored or sold.")
     posts = getPosts()
     print(posts)
-    resp = make_response(render_template("html.html", title="Gustav's blog", posts=posts))
+
+    resp = make_response(render_template("html.html", title="Gustav's blog", posts=posts, isAdmin=request.cookies.get('key')==hashlib.md5((key+request.remote_addr).encode()).hexdigest()))
     resp.set_cookie('seenCookies', "1")
     return resp
 
