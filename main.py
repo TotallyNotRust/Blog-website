@@ -5,6 +5,7 @@ from makeNewPost import MakePost
 from datetime import datetime
 from login import Login
 import markdown
+from flask_pretty import Prettify
 
 print(logging.DEBUG)
 logging.basicConfig(filename='log.log', encoding='utf-8', level=logging.DEBUG)
@@ -56,7 +57,12 @@ def mainPage():
     posts = getPosts()
     print(posts)
 
-    resp = make_response(render_template("html.html", title="Gustav's blog", posts=posts, isAdmin=request.cookies.get('key')==hashlib.md5((key+request.remote_addr).encode()).hexdigest()))
+    code = [i["content"].split("``")[1::2] for i in posts]
+    
+    print([{"content":"--code".join(i["content"].split("``")[::2])} for i in posts])
+    posts = [i | {"content":"--code".join(i["content"].split("``")[::2])} for i in posts]
+
+    resp = make_response(render_template("html.html", title="Gustav's blog", posts=posts, code=code, isAdmin=request.cookies.get('key')==hashlib.md5((key+request.remote_addr).encode()).hexdigest()))
     resp.set_cookie('seenCookies', "1")
     return resp
 
