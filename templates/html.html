@@ -3,7 +3,7 @@
     <div>
         <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
         <style>
-            .topper {
+            .footer {
                 position: fixed;
                 left: 0;
                 bottom: 0;
@@ -13,7 +13,7 @@
                 color: white;
                 text-align: center;
             }
-            .topper-text {
+            .footer-text {
                 position: absolute;
                 top: 25%;
             }
@@ -25,7 +25,7 @@
                 text-align: center;
                 font-size: 50px;
                 padding: 20px;
-                width: 400px;
+                width: 50%;
                 margin: 0 auto;
                 background-color: antiquewhite;
                 outline: 2px;
@@ -36,11 +36,12 @@
             }
             .post{
                 background-color: antiquewhite;
-                width: 400px;
+                width: 50%;
                 margin: 0 auto;
                 outline: 2px;
                 outline-style: outset;
                 text-align: left;
+                position: relative;
             }
             .alert {
                 padding: 20px;
@@ -58,25 +59,81 @@
                 font-size: 20px;
                 font-weight: 1000;
             }
-            .code {
-                background-color: grey;
-                outline: 2px;
-                outline-style: outset;
+            .linenums li {
+                list-style-type: decimal;
+                background: whitesmoke;
             }
+            pre.linenums {
+                background: whitesmoke;
+            }
+            li.L0, li.L1, li.L2, li.L3, li.L4, li.L5, li.L6, li.L7, li.L8, li.L9{
+                list-style-type: decimal;
+            }
+            li.L1, li.L3, li.L5, li.L7, li.L9 {
+                background: #CCCCCC;
+            }
+            .dropdown {
+                background: none;
+            }
+            /* Style The Dropdown Button */
+            .dropbtn {
+                background: none;
+                border: solid black;
+                border-width: 0 2px 2px 0;
+                display: inline-block;
+                padding: 2px;
+                transform: rotate(45deg);
+                -webkit-transform: rotate(45deg);
+                position: absolute;
+                top: 5px;
+                right: 5px;
+            }
+
+            /* Dropdown Content (Hidden by Default) */
+            .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color:beige;
+            outline: 2px;
+            outline-style: outset;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            top: 10px;
+            right: 5px;
+            }
+
+            /* Links inside the dropdown */
+            .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            }
+
+            /* Change color of dropdown links on hover */
+            .dropdown-content a:hover {background-color: #d9b382}
+
+            /* Show the dropdown menu on hover */
+            .dropdown:hover .dropdown-content {
+            display: block;
+            }
+
+
         </style>
     </div>
     <div class = "center">
-        <div class="topper">
+        <div class="footer">
             {% if isAdmin %}
 
             <div>
-                <a class = "topper-text" href="/makePost">Make post</a>
+                <a class = "footer-text" href="/makePost">Make post</a>
             </div>
 
             {% else %}
             
             <div>
-                <a class = "topper-text" href="/login">Make post</a>
+                <a class = "footer-text" href="/login">Sign in</a>
             </div>
 
             {% endif %}
@@ -86,20 +143,27 @@
         </div>
         <div>
             {% for post in posts %}
+            {% set count = namespace(value=0) %}
             <div class="post">
-                <div><h2>{{ post.title }}</h2></div>
+                {%-if isAdmin-%}
+                <i class="dropdown">
+                    <i class="dropbtn"></i>
+                    <div class="dropdown-content">
+                      <a href="/delete?id={{post.id}}">Remove</a>
+                      <a href="/editPost?id={{post.id}}">Edit</a>
+                    </div>
+                </i>
+                {%endif%}
+                <h2>
+                    {{ post.title }}
+                </h2>
                 {% set pictures = post.images %}
                 {% for i in post.content.split("\r\n") %}
-                {% set indentCode = 0%}
                 {% if i == "--code" %}
-                    <pre class="prettyprint">
-                        {% for Code in code[indentCode]%}
-                        {% if Code%}
-                        {{Code}}
-                        {%endif%}
-                        {%endfor%}
+                    <pre class="prettyprint linenums">
+                        {{-code[post["id"]|string][count.value]-}}
                     </pre>
-                    {% set indentCode = indentCode + 1%}
+                    {% set count.value = count.value + 1 %}
                 {% else %}
                     {% if i == "__img__"%}
                         <img src="{{pictures[0]}}">
