@@ -166,6 +166,11 @@ def login():
     else:
         return render_template('login.html', form=form)
 
+@app.route("/about")
+def aboutPage():
+    image = os.path.join(app.root_path, 'static\\', "aboutMe.jpg")
+    isAdmin=request.cookies.get('key')==hashlib.md5((key+request.remote_addr).encode()).hexdigest()
+    return make_response(render_template("aboutPage.html", isAdmin=isAdmin, image=image))
 @app.errorhandler(404)
 def page_not_found(e):
     return '<h1>Page not found</h1>'
